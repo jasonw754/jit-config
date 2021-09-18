@@ -1,7 +1,8 @@
 const fs = require('fs')
 const yaml = require('js-yaml')
+const inquirer = require('inquirer')
 
-function jitConfig(configFile) {
+async function jitConfig(configFile, desiredConfig) {
 
   try {
     let contents = fs.readFileSync(configFile)
@@ -11,8 +12,21 @@ function jitConfig(configFile) {
     }
     fs.writeFileSync(configFile, yaml.dump({ test: true }))
   }
-  console.log("got here")
-  return {}
+
+  if (desiredConfig) { 
+    return promptForConfig(desiredConfig)
+  }
+  return undefined
+}
+
+async function promptForConfig(desiredConfig) {
+  let config = await inquirer.prompt(Object.keys(desiredConfig).map(key => ({
+      type: 'input',
+      name: key,
+      message: 'Fill in a value'
+    })
+  ))
+  return config
 }
 
 module.exports = jitConfig
